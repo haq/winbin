@@ -1,4 +1,4 @@
-package me.ihaq.windowsbin.file;
+package me.ihaq.winbin.file;
 
 import com.google.gson.Gson;
 

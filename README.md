@@ -1,6 +1,6 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg) ](LICENSE)
 
-# WindowsBin
+# WinBin
 A simple programs that make your copied text into a Pastebin paste.
 
 ## Usage

@@ -1,9 +1,9 @@
-package me.ihaq.windowsbin;
+package me.ihaq.winbin;
 
 import com.google.gson.GsonBuilder;
-import me.ihaq.windowsbin.file.CustomFile;
-import me.ihaq.windowsbin.file.files.ConfigFile;
-import me.ihaq.windowsbin.util.WebUtils;
+import me.ihaq.winbin.file.CustomFile;
+import me.ihaq.winbin.file.files.ConfigFile;
+import me.ihaq.winbin.util.WebUtils;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum WindowsBin {
+public enum WinBin {
     INSTANCE;
 
     private final Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
@@ -42,7 +42,7 @@ public enum WindowsBin {
 
     private void registerKeyListener() {
 
-        // Get the logger for "org.jnativehook" and set the level to warning.
+        // setting GlobalScreen logger level to warning.
         Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
         logger.setLevel(Level.WARNING);
         logger.setUseParentHandlers(false);
@@ -138,7 +138,7 @@ public enum WindowsBin {
         });
         trayPopupMenu.add(close);
 
-        TrayIcon trayIcon = new TrayIcon(image, "WindowsBin", trayPopupMenu);
+        TrayIcon trayIcon = new TrayIcon(image, getClass().getSimpleName(), trayPopupMenu);
         trayIcon.setImageAutoSize(true);
 
         try {
@@ -153,13 +153,12 @@ public enum WindowsBin {
             GlobalScreen.unregisterNativeHook();
         } catch (NativeHookException e) {
             e.printStackTrace();
-            shutdown(1);
         }
         executorService.shutdown();
         System.exit(code);
     }
 
     public static void main(String[] args) {
-        WindowsBin.INSTANCE.create();
+        WinBin.INSTANCE.create();
     }
 }

@@ -1,6 +1,6 @@
-package me.ihaq.windowsbin.util;
+package me.ihaq.winbin.util;
 
-import me.ihaq.windowsbin.WindowsBin;
+import me.ihaq.winbin.WinBin;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -9,13 +9,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class WebUtils {
 
     public static void makeNewPaste(Consumer<String> consumer, String contents) {
-        WindowsBin.INSTANCE.executorService.submit(() -> {
+        WinBin.INSTANCE.executorService.submit(() -> {
             try {
 
                 HttpURLConnection connection = (HttpURLConnection) new URL("https://pastebin.com/api/api_post.php").openConnection();
@@ -29,7 +28,7 @@ public class WebUtils {
 
                 DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
                 wr.writeBytes("api_option=" + "paste" +
-                        "&api_dev_key=" + WindowsBin.INSTANCE.pasteBinKey +
+                        "&api_dev_key=" + WinBin.INSTANCE.pasteBinKey +
                         "&api_paste_private=" + 1 +
                         "&api_paste_name=" + "Untitled" +
                         "&api_paste_format=" + "text" +
@@ -53,11 +52,5 @@ public class WebUtils {
             }
         });
 
-    }
-
-    private static String getRandomString() {
-        byte[] array = new byte[7]; // length is bounded by 7
-        new Random().nextBytes(array);
-        return new String(array, Charset.forName("UTF-8"));
     }
 }
