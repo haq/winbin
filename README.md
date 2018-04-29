@@ -5,7 +5,6 @@ A simple programs that make your copied text into a Pastebin paste.
 
 ## Usage
 1) [Download](https://github.com/HaqGamer/windows-bin/releases) the program.
-2) Run and stop the program. A "config.json" file will be made.
-3) In that file enter your "Developer API Key". You can get yours from https://pastebin.com/api.
-4) Run the program again and everything should be up and running.
-5) You can now copy some text then press "CTRL + SHIFT + V" to make the copied text into a Pastebin paste.
+2) Run the program and you will be asked to enter your *Developer API Key*. You can get yours from https://pastebin.com/api.
+3) Click "OK" after entering your api key. Make sure it is correct or else you will have to go to *%appdata%\WindowsBin\config.json* to change it.
+4) You can now copy some text then press *CTRL + SHIFT + V* to make the copied text into a Pastebin paste.

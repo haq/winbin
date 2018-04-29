@@ -26,7 +26,7 @@ public enum WindowsBin {
     INSTANCE;
 
     private final Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
-    private final File directory = new File(System.getProperty("user.dir") + "/" + getClass().getSimpleName());
+    private final File directory = new File(System.getenv("APPDATA") + "/" + getClass().getSimpleName());
     private final CustomFile configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
 
     // used for running async tasks

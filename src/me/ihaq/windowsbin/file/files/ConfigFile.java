@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import me.ihaq.windowsbin.WindowsBin;
 import me.ihaq.windowsbin.file.CustomFile;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,6 +17,13 @@ public class ConfigFile extends CustomFile {
 
     public ConfigFile(Gson gson, File file) {
         super(gson, file);
+    }
+
+    @Override
+    public void makeDirectory() {
+        if (getFile() != null && !getFile().exists())
+            WindowsBin.INSTANCE.pasteBinKey = JOptionPane.showInputDialog("Enter your Developer API Key:");
+        super.makeDirectory();
     }
 
     @Override
