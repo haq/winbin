@@ -4,7 +4,7 @@
 A simple programs that make your copied text into a Pastebin paste.
 
 ## Usage
-1) Download the program.
+1) [Download](https://github.com/HaqGamer/windows-bin/releases) the program.
 2) Run and stop the program. A "config.json" file will be made.
 3) In that file enter your "Developer API Key". You can get yours from https://pastebin.com/api.
 4) Run the program again and everything should be up and running.
