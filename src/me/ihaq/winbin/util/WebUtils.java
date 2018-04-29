@@ -18,38 +18,36 @@ public class WebUtils {
             try {
 
                 HttpURLConnection connection = (HttpURLConnection) new URL("https://pastebin.com/api/api_post.php").openConnection();
-                connection.setDoOutput(true);
-                connection.setDoInput(true);
                 connection.setRequestMethod("POST");
-                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0");
                 connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+                connection.setDoOutput(true);
                 connection.connect();
 
                 DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
                 wr.writeBytes("api_option=" + "paste" +
                         "&api_dev_key=" + WinBin.INSTANCE.pasteBinKey +
                         "&api_paste_private=" + 1 +
-                        "&api_paste_name=" + "Untitled" +
-                        "&api_paste_format=" + "text" +
                         "&api_paste_code=" + contents +
-                        "&api_expire_date=" + "1D");
+                        "&api_expire_date=" + "N");
                 wr.flush();
                 wr.close();
 
-                BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8")));
+                BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = r.readLine()) != null) {
                     sb.append(line);
                 }
+                r.close();
 
                 consumer.accept(sb.toString());
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         });
 
     }
