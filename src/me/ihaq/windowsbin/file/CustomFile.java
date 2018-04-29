@@ -13,10 +13,9 @@ public abstract class CustomFile {
     public CustomFile(Gson gson, File file) {
         this.gson = gson;
         this.file = file;
-        makeDirectory();
     }
 
-    private void makeDirectory() {
+    public void makeDirectory() {
         if (file != null && !file.exists()) {
             try {
                 file.createNewFile();
@@ -30,11 +29,11 @@ public abstract class CustomFile {
 
     public abstract void saveFile() throws IOException;
 
-    public File getFile() {
+    protected File getFile() {
         return file;
     }
 
-    public Gson getGson() {
+    protected Gson getGson() {
         return gson;
     }
 }

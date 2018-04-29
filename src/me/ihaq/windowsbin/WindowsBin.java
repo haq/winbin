@@ -34,15 +34,7 @@ public enum WindowsBin {
 
     public String pasteBinKey = "";
 
-
     public void create() {
-        // creating JFrame object
-        JFrame frame = new JFrame("WindowsBin");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(false);
-        frame.setIconImage(image);
-
         registerKeyListener();
         createConfig();
         createPopupMenu();
@@ -111,10 +103,13 @@ public enum WindowsBin {
         });
     }
 
+    // loading data from the config file
     private void createConfig() {
-        // loading data from the config file
+
         if (!directory.exists())
             directory.mkdirs();
+
+        configFile.makeDirectory();
 
         try {
             configFile.loadFile();
