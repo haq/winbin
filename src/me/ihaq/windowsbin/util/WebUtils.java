@@ -31,7 +31,7 @@ public class WebUtils {
                 wr.writeBytes("api_option=" + "paste" +
                         "&api_dev_key=" + WindowsBin.INSTANCE.pasteBinKey +
                         "&api_paste_private=" + 1 +
-                        "&api_paste_name=" + getRandomString() +
+                        "&api_paste_name=" + "Untitled" +
                         "&api_paste_format=" + "text" +
                         "&api_paste_code=" + contents +
                         "&api_expire_date=" + "1D");
