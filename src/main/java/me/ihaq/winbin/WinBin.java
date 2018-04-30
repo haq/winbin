@@ -34,7 +34,7 @@ public enum WinBin {
 
     public String pasteBinKey = "";
 
-    public void create() {
+    public void start() {
         registerKeyListener();
         createConfig();
         createPopupMenu();
@@ -159,6 +159,6 @@ public enum WinBin {
     }
 
     public static void main(String[] args) {
-        WinBin.INSTANCE.create();
+        WinBin.INSTANCE.start();
     }
 }
