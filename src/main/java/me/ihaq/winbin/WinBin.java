@@ -25,14 +25,12 @@ import java.util.logging.Logger;
 public enum WinBin {
     INSTANCE;
 
+    private final String NAME = getClass().getSimpleName();
     private final Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
-    private final File directory = new File(System.getenv("APPDATA") + "/" + getClass().getSimpleName());
+    private final File directory = new File(System.getenv("APPDATA") + "/" + NAME);
     private final CustomFile configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
 
-    // used for running async tasks
-    public final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-    public String pasteBinKey = "";
+    public String pasteBinKey;
 
     public void start() {
         registerKeyListener();
@@ -119,9 +117,10 @@ public enum WinBin {
     }
 
     private void createPopupMenu() {
+
         //checking for support
         if (!SystemTray.isSupported())
-            return;
+            shutdown(0);
 
         // creating PopupMenu object
         PopupMenu trayPopupMenu = new PopupMenu();
@@ -138,7 +137,7 @@ public enum WinBin {
         });
         trayPopupMenu.add(close);
 
-        TrayIcon trayIcon = new TrayIcon(image, getClass().getSimpleName(), trayPopupMenu);
+        TrayIcon trayIcon = new TrayIcon(image, NAME, trayPopupMenu);
         trayIcon.setImageAutoSize(true);
 
         try {
@@ -154,7 +153,6 @@ public enum WinBin {
         } catch (NativeHookException e) {
             e.printStackTrace();
         }
-        executorService.shutdown();
         System.exit(code);
     }
 

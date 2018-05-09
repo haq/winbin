@@ -14,7 +14,6 @@ public class WebUtils {
                 consumer.accept(
                         Unirest.post("https://pastebin.com/api/api_post.php")
                                 .header("User-Agent", "Mozilla/5.0")
-                                .header("Accept-Language", "application/json")
                                 .field("api_option", "paste")
                                 .field("api_dev_key", WinBin.INSTANCE.pasteBinKey)
                                 .field("api_paste_private", 1)
@@ -25,7 +24,6 @@ public class WebUtils {
             } catch (UnirestException e) {
                 e.printStackTrace();
             }
-
         });
 
     }
