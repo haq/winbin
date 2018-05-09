@@ -1,9 +1,13 @@
 package me.ihaq.winbin;
 
 import com.google.gson.GsonBuilder;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.async.Callback;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import me.ihaq.winbin.file.CustomFile;
 import me.ihaq.winbin.file.files.ConfigFile;
 import me.ihaq.winbin.util.WebUtils;
+import org.apache.http.HttpStatus;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -17,22 +21,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum WinBin {
     INSTANCE;
 
+    private final String NAME = getClass().getSimpleName();
     private final Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
-    private final File directory = new File(System.getenv("APPDATA") + "/" + getClass().getSimpleName());
+    private final File directory = new File(System.getenv("APPDATA") + "/" + NAME);
     private final CustomFile configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
 
-    // used for running async tasks
-    public final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-    public String pasteBinKey = "";
+    public String pasteBinKey;
 
     public void start() {
         registerKeyListener();
@@ -66,17 +66,42 @@ public enum WinBin {
                 // checking if the proper key combo is pressed
                 if (keys[0] == 1 && keys[1] == 1 && keys[2] == 1) {
                     try {
-                        WebUtils.makeNewPaste(response -> {
-                            if (response.contains("pastebin.com")) {
-                                try {
-                                    Desktop.getDesktop().browse(new URL(response).toURI());
-                                } catch (IOException | URISyntaxException e1) {
-                                    e1.printStackTrace();
+                        WebUtils.makeNewPaste(new Callback<String>() {
+
+                            @Override
+                            public void completed(HttpResponse<String> httpResponse) {
+
+                                if (httpResponse.getStatus() == HttpStatus.SC_OK
+                                        && httpResponse.getBody().contains("pastebin.com")) {
+
+                                    String link = httpResponse.getBody();
+
+                                    try {
+                                        Desktop.getDesktop().browse(new URL(link).toURI());
+                                    } catch (IOException | URISyntaxException e1) {
+                                        e1.printStackTrace();
+                                        showErrorWindow("An error occurred while opening the link. Here is the link: " + link);
+                                    }
+
+                                } else {
+                                    showErrorWindow("Message: " + httpResponse.getBody());
                                 }
                             }
+
+                            @Override
+                            public void failed(UnirestException e) {
+                                showErrorWindow("An error occurred while connecting to Pastebin.");
+                            }
+
+                            @Override
+                            public void cancelled() {
+
+                            }
+
                         }, (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
                     } catch (UnsupportedFlavorException | IOException e1) {
                         e1.printStackTrace();
+                        showErrorWindow("An error occurred while making you copied text into a Pastebin paste.");
                     }
                 }
             }
@@ -119,9 +144,12 @@ public enum WinBin {
     }
 
     private void createPopupMenu() {
+
         //checking for support
-        if (!SystemTray.isSupported())
-            return;
+        if (!SystemTray.isSupported()) {
+            JOptionPane.showMessageDialog(null, "SystemTray is not supported on your platform, you will not be able to use this program.", "Winbin - Error", JOptionPane.ERROR_MESSAGE);
+            shutdown(0);
+        }
 
         // creating PopupMenu object
         PopupMenu trayPopupMenu = new PopupMenu();
@@ -138,7 +166,7 @@ public enum WinBin {
         });
         trayPopupMenu.add(close);
 
-        TrayIcon trayIcon = new TrayIcon(image, getClass().getSimpleName(), trayPopupMenu);
+        TrayIcon trayIcon = new TrayIcon(image, NAME, trayPopupMenu);
         trayIcon.setImageAutoSize(true);
 
         try {
@@ -154,8 +182,11 @@ public enum WinBin {
         } catch (NativeHookException e) {
             e.printStackTrace();
         }
-        executorService.shutdown();
         System.exit(code);
+    }
+
+    private void showErrorWindow(String message) {
+        JOptionPane.showMessageDialog(null, message, "Winbin - Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void main(String[] args) {
