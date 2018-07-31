@@ -30,15 +30,15 @@ import static me.ihaq.winbin.util.CommonUtils.*;
 public enum WinBin {
     INSTANCE;
 
-    public static void main(String[] args) {
-        INSTANCE.start();
-    }
-
     public final String NAME = "WinBin";
 
     private CustomFile configFile;
     public String pasteBinKey;
     public TrayIcon trayIcon;
+
+    public static void main(String[] args) {
+        INSTANCE.start();
+    }
 
     public void start() {
 
@@ -139,6 +139,9 @@ public enum WinBin {
                     }
                     case NativeKeyEvent.VC_V: {
                         keys[2] = status;
+                        break;
+                    }
+                    default: {
                         break;
                     }
                 }
