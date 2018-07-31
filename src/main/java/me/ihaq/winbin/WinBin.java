@@ -15,7 +15,9 @@ import org.jnativehook.keyboard.NativeKeyListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
@@ -27,14 +29,25 @@ import java.util.logging.Logger;
 public enum WinBin {
     INSTANCE;
 
-    private final String NAME = getClass().getSimpleName();
-    private final Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
-    private final File directory = new File(System.getenv("APPDATA") + "/" + NAME);
-    private final CustomFile configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
+    public static void main(String[] args) {
+        WinBin.INSTANCE.start();
+    }
 
+    private final String NAME = "WinBin";
+
+    private Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
+    private File directory = new File(System.getenv("APPDATA") + "/" + NAME);
+    private CustomFile configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
     public String pasteBinKey;
 
     public void start() {
+
+        //checking for support
+        if (!SystemTray.isSupported()) {
+            JOptionPane.showMessageDialog(null, "SystemTray is not supported on your platform, you will not be able to use this program.", NAME, JOptionPane.ERROR_MESSAGE);
+            shutdown(0);
+        }
+
         registerKeyListener();
         createConfig();
         createPopupMenu();
@@ -71,8 +84,7 @@ public enum WinBin {
                             @Override
                             public void completed(HttpResponse<String> httpResponse) {
 
-                                if (httpResponse.getStatus() == HttpStatus.SC_OK
-                                        && httpResponse.getBody().contains("pastebin.com")) {
+                                if (httpResponse.getStatus() == HttpStatus.SC_OK && httpResponse.getBody().contains("pastebin.com")) {
 
                                     String link = httpResponse.getBody();
 
@@ -80,17 +92,19 @@ public enum WinBin {
                                         Desktop.getDesktop().browse(new URL(link).toURI());
                                     } catch (IOException | URISyntaxException e1) {
                                         e1.printStackTrace();
-                                        showErrorWindow("An error occurred while opening the link. Here is the link: " + link);
+                                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                                        clipboard.setContents(new StringSelection(link), null);
+                                        showNotification("Could not open web page so we copied the URL.");
                                     }
 
                                 } else {
-                                    showErrorWindow("Message: " + httpResponse.getBody());
+                                    showNotification(httpResponse.getBody());
                                 }
                             }
 
                             @Override
                             public void failed(UnirestException e) {
-                                showErrorWindow("An error occurred while connecting to Pastebin.");
+                                showNotification("Could not connect to Pastebin.");
                             }
 
                             @Override
@@ -101,7 +115,7 @@ public enum WinBin {
                         }, (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
                     } catch (UnsupportedFlavorException | IOException e1) {
                         e1.printStackTrace();
-                        showErrorWindow("An error occurred while making you copied text into a Pastebin paste.");
+                        showNotification("An error occurred, please try again.");
                     }
                 }
             }
@@ -112,14 +126,20 @@ public enum WinBin {
             }
 
             private void setKeyStatus(int key, int status) {
-                if (key == NativeKeyEvent.VC_CONTROL)
-                    keys[0] = status;
-
-                if (key == NativeKeyEvent.VC_SHIFT)
-                    keys[1] = status;
-
-                if (key == NativeKeyEvent.VC_V)
-                    keys[2] = status;
+                switch (key) {
+                    case NativeKeyEvent.VC_CONTROL: {
+                        keys[0] = status;
+                        break;
+                    }
+                    case NativeKeyEvent.VC_SHIFT: {
+                        keys[1] = status;
+                        break;
+                    }
+                    case NativeKeyEvent.VC_V: {
+                        keys[2] = status;
+                        break;
+                    }
+                }
             }
 
             @Override
@@ -131,8 +151,9 @@ public enum WinBin {
     // loading data from the config file
     private void createConfig() {
 
-        if (!directory.exists())
+        if (!directory.exists()) {
             directory.mkdirs();
+        }
 
         configFile.makeDirectory();
 
@@ -144,12 +165,6 @@ public enum WinBin {
     }
 
     private void createPopupMenu() {
-
-        //checking for support
-        if (!SystemTray.isSupported()) {
-            JOptionPane.showMessageDialog(null, "SystemTray is not supported on your platform, you will not be able to use this program.", "Winbin - Error", JOptionPane.ERROR_MESSAGE);
-            shutdown(0);
-        }
 
         // creating PopupMenu object
         PopupMenu trayPopupMenu = new PopupMenu();
@@ -185,11 +200,17 @@ public enum WinBin {
         System.exit(code);
     }
 
-    private void showErrorWindow(String message) {
-        JOptionPane.showMessageDialog(null, message, "Winbin - Error", JOptionPane.ERROR_MESSAGE);
-    }
+    private void showNotification(String message) {
+        try {
+            SystemTray tray = SystemTray.getSystemTray();
 
-    public static void main(String[] args) {
-        WinBin.INSTANCE.start();
+            TrayIcon trayIcon = new TrayIcon(image, NAME);
+            trayIcon.setImageAutoSize(true);
+            tray.add(trayIcon);
+            trayIcon.displayMessage(NAME, message, TrayIcon.MessageType.INFO);
+
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
     }
 }
