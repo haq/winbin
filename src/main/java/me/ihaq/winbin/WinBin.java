@@ -30,15 +30,14 @@ public enum WinBin {
     INSTANCE;
 
     public static void main(String[] args) {
-        WinBin.INSTANCE.start();
+        INSTANCE.start();
     }
 
-    private final String NAME = "WinBin";
+    public final String NAME = "WinBin";
 
-    private Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
-    private File directory = new File(System.getenv("APPDATA") + "/" + NAME);
-    private CustomFile configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
+    private CustomFile configFile;
     public String pasteBinKey;
+    private TrayIcon trayIcon;
 
     public void start() {
 
@@ -51,6 +50,8 @@ public enum WinBin {
         registerKeyListener();
         createConfig();
         createPopupMenu();
+
+        showNotification(NAME + " started.");
     }
 
     private void registerKeyListener() {
@@ -115,7 +116,7 @@ public enum WinBin {
                         }, (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
                     } catch (UnsupportedFlavorException | IOException e1) {
                         e1.printStackTrace();
-                        showNotification("An error occurred, please try again.");
+                        showNotification("An error occurred.");
                     }
                 }
             }
@@ -151,11 +152,13 @@ public enum WinBin {
     // loading data from the config file
     private void createConfig() {
 
+        File directory = new File(System.getenv("APPDATA") + "/" + NAME);
+
         if (!directory.exists()) {
             directory.mkdirs();
         }
 
-        configFile.makeDirectory();
+        configFile = new ConfigFile(new GsonBuilder().setPrettyPrinting().create(), new File(directory, "config.json"));
 
         try {
             configFile.loadFile();
@@ -181,13 +184,16 @@ public enum WinBin {
         });
         trayPopupMenu.add(close);
 
-        TrayIcon trayIcon = new TrayIcon(image, NAME, trayPopupMenu);
+        Image image = new ImageIcon(getClass().getResource("/pastebin.png")).getImage();
+        trayIcon = new TrayIcon(image, NAME, trayPopupMenu);
         trayIcon.setImageAutoSize(true);
 
         try {
             SystemTray.getSystemTray().add(trayIcon);
         } catch (AWTException awtException) {
             awtException.printStackTrace();
+            showNotification("An error occurred, please restart the program.");
+            shutdown(1);
         }
     }
 
@@ -197,20 +203,12 @@ public enum WinBin {
         } catch (NativeHookException e) {
             e.printStackTrace();
         }
+        showNotification(INSTANCE.NAME + " " + (code == 0 ? "stopped" : "crashed") + ".");
         System.exit(code);
     }
 
     private void showNotification(String message) {
-        try {
-            SystemTray tray = SystemTray.getSystemTray();
-
-            TrayIcon trayIcon = new TrayIcon(image, NAME);
-            trayIcon.setImageAutoSize(true);
-            tray.add(trayIcon);
-            trayIcon.displayMessage(NAME, message, TrayIcon.MessageType.INFO);
-
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
+        trayIcon.displayMessage(INSTANCE.NAME, message, TrayIcon.MessageType.INFO);
     }
+
 }

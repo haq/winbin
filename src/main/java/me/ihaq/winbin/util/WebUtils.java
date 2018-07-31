@@ -6,6 +6,9 @@ import me.ihaq.winbin.WinBin;
 
 public class WebUtils {
 
+    private WebUtils() {
+    }
+
     public static void makeNewPaste(Callback<String> callback, String contents) {
         Unirest.post("https://pastebin.com/api/api_post.php")
                 .header("User-Agent", "Mozilla/5.0")

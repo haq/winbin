@@ -21,8 +21,9 @@ public class ConfigFile extends CustomFile {
 
     @Override
     public void makeDirectory() {
-        if (getFile() != null && !getFile().exists())
+        if (getFile() != null && !getFile().exists()) {
             WinBin.INSTANCE.pasteBinKey = JOptionPane.showInputDialog("Enter your Developer API Key:");
+        }
         super.makeDirectory();
     }
 
@@ -32,11 +33,13 @@ public class ConfigFile extends CustomFile {
         JsonObject jsonObject = getGson().fromJson(fr, JsonObject.class);
         fr.close();
 
-        if (jsonObject == null)
+        if (jsonObject == null) {
             return;
+        }
 
-        if (jsonObject.has(KEY))
+        if (jsonObject.has(KEY)) {
             WinBin.INSTANCE.pasteBinKey = jsonObject.get(KEY).getAsString();
+        }
     }
 
     @Override

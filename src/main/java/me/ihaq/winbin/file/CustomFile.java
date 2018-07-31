@@ -13,6 +13,7 @@ public abstract class CustomFile {
     public CustomFile(Gson gson, File file) {
         this.gson = gson;
         this.file = file;
+        makeDirectory();
     }
 
     public void makeDirectory() {
