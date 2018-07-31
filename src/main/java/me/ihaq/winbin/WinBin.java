@@ -6,7 +6,6 @@ import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import me.ihaq.winbin.file.CustomFile;
 import me.ihaq.winbin.file.files.ConfigFile;
-import me.ihaq.winbin.util.WebUtils;
 import org.apache.http.HttpStatus;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -26,6 +25,8 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static me.ihaq.winbin.util.CommonUtils.*;
+
 public enum WinBin {
     INSTANCE;
 
@@ -37,7 +38,7 @@ public enum WinBin {
 
     private CustomFile configFile;
     public String pasteBinKey;
-    private TrayIcon trayIcon;
+    public TrayIcon trayIcon;
 
     public void start() {
 
@@ -80,7 +81,7 @@ public enum WinBin {
                 // checking if the proper key combo is pressed
                 if (keys[0] == 1 && keys[1] == 1 && keys[2] == 1) {
                     try {
-                        WebUtils.makeNewPaste(new Callback<String>() {
+                        makeNewPaste(new Callback<String>() {
 
                             @Override
                             public void completed(HttpResponse<String> httpResponse) {
@@ -197,18 +198,5 @@ public enum WinBin {
         }
     }
 
-    private void shutdown(int code) {
-        try {
-            GlobalScreen.unregisterNativeHook();
-        } catch (NativeHookException e) {
-            e.printStackTrace();
-        }
-        showNotification(INSTANCE.NAME + " " + (code == 0 ? "stopped" : "crashed") + ".");
-        System.exit(code);
-    }
-
-    private void showNotification(String message) {
-        trayIcon.displayMessage(INSTANCE.NAME, message, TrayIcon.MessageType.INFO);
-    }
 
 }
